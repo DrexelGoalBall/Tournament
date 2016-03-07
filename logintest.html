@@ -1,0 +1,39 @@
+<HTML> 
+<BODY> 
+<script src = "//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script language="javascript" type="text/javascript">
+function login() 
+{
+	var userName=document.getElementById('txtusername').value;
+	var password=document.getElementById('txtpassword').value;
+	var user;
+	$.ajax({
+		type:"POST",
+		url:"./mongo.py",
+		data: {param:text}
+
+	}).done(function(o){
+		user=validate_login(userName, password);
+	});
+	console.log(user)
+	// if (document.getElementById('txtusername').value == 'organizer'  && document.getElementById('txtpassword').value == 'x')
+	// {
+	// 	    window.location.href = "./OrganizerOpening.html";
+	// }
+	// else if (document.getElementById('txtusername').value == 'player'  && document.getElementById('txtpassword').value == 'x')
+	// {
+	// 	window.location.href = "./PlayerOpening.html";
+	// }
+}
+</script>
+<div style="width: 500px; margin: 300px auto 0 auto;">
+	<H2>Login</H2>
+   
+     <input type="text" id="txtusername" value="Username" /><br />
+     <input type="text" id="txtpassword" value="Password" /><br />
+     <button id="login" value="login" onclick ="login()"> Login </button>
+   
+ </div> 
+
+</BODY>
+</HTML>
