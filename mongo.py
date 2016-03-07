@@ -8,7 +8,10 @@ from bson.json_util import dumps
 
 connection = pymongo.MongoClient().GoalBall
 
-def add_user(username, password, email):
+def add_user(username, password, email=""):
+	'''add_user(username, password, email="") takes in a username, password and optional email to add a new 
+user into the login database. if the username is already taken it will not create a new user
+it will also create a new entry in the user db with the email and user name to be updated later'''
 	password_hash = make_pw_hash(password)
 
 	loginInfo = {'_id': username, 'password': password_hash}
@@ -34,7 +37,8 @@ def add_user(username, password, email):
 	return True
 
 def validate_login(username, password):
-
+	'''validate_login(username, password) takes in username and password and checks the database to see if the password
+is correct. if it is it will return the entery in the users database with the same username'''
 	loginInfo = None
 	try:
 		loginInfo = connection.login.find_one({'_id': username})
@@ -74,6 +78,8 @@ def make_pw_hash(pw,salt=None):
 	return hashlib.sha256(pw + salt).hexdigest()+","+ salt
 
 def createUser(username, fName, lName, role, instution):
+	'''createUser(username, fName, lName, role, instution) take is information to update the user info created in 
+add_user. it should be called right afer add_user.'''
 	try:
 		connection.users.update_one({"_id":username}, 
 			{
@@ -92,6 +98,8 @@ def createUser(username, fName, lName, role, instution):
 	return True
 
 def joinTeam(username, team):
+	"""joinTeam(username, team) takes in teh username of the person you want to add to a team and 
+assoctates that person with that team in the database."""
 	try:
 		connection.users.update_one({"_id":username}, 
 			{ "$addToSet": { "teams": team } })
@@ -101,6 +109,8 @@ def joinTeam(username, team):
 	return True
     
 def getuser(username):
+	'''getuser(username) returns the user from the database. if you need to update the object 
+form the database this is what you need. '''
 	try:
 		user=connection.users.find_one({'_id': username})
 	except:
@@ -119,6 +129,10 @@ def getuser(username):
 # email=raw_input("email: ")
 # print add_user(username, password, email)
 print validate_login("buzz", "pass12")
-
+# print add_user.__doc__
+# print validate_login.__doc__
+# print createUser.__doc__
+# print joinTeam.__doc__
+# print getuser.__doc__
 
 # connection.users.find_one({})

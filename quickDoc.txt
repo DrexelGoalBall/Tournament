@@ -1,0 +1,11 @@
+add_user(username, password, email="") takes in a username, password and optional email to add a new 
+user into the login database. if the username is already taken it will not create a new user
+it will also create a new entry in the user db with the email and user name to be updated later
+validate_login(username, password) takes in username and password and checks the database to see if the password
+is correct. if it is it will return the entery in the users database with the same username
+createUser(username, fName, lName, role, instution) take is information to update the user info created in 
+add_user. it should be called right afer add_user.
+joinTeam(username, team) takes in teh username of the person you want to add to a team and 
+assoctates that person with that team in the database.
+getuser(username) returns the user from the database. if you need to update the object 
+form the database this is what you need. 
