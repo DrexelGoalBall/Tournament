@@ -5,6 +5,9 @@ import hashlib
 import pymongo
 import sys
 from bson.json_util import dumps
+from bson.objectid import ObjectId
+from random import randint
+import ast
 
 connection = pymongo.MongoClient().GoalBall
 
@@ -67,7 +70,7 @@ is correct. if it is it will return the entery in the users database with the sa
 
 
 def make_salt():
-	alt = ""
+	salt = ""
 	for i in range(5):
             salt = salt + random.choice(string.ascii_letters)
 	return salt
@@ -117,6 +120,90 @@ form the database this is what you need. '''
 		print "Unable to query database for user"
 	return dumps(user)
 
+	
+def joinTournament(username, tournamentID):
+	
+	try:
+		connection.tournaments.update_one({"_id":ObjectId(tournamentID)}, 
+			{ "$addToSet": { "requests": username } })
+
+	except pymongo.errors.OperationFailure:
+		print 'mongo error'
+		return False
+	return True
+def removeRequest(username, tournamentID):
+	try:
+		connection.tournaments.update_one({"_id":ObjectId(tournamentID)}, 
+			{ "$pull": { "requests": username } })
+
+	except pymongo.errors.OperationFailure:
+		print 'mongo error'
+		return False
+	return True
+
+def getTournamentID(name):
+	try:
+		result=connection.tournaments.find({"name":name})
+		t=list(result)
+		print t[0]
+		if len(t)==1:
+			return t[0]["_id"]
+
+	except pymongo.errors.OperationFailure:
+		print 'mongo error'
+	return False
+
+	
+
+def createTournement(name, teamLimit, userName):
+	tourn={'name': name, 
+		'teams': ['beta', 'alpha', 'red', 'blue'], 
+		'matchups': [], 
+		'limit': teamLimit, 
+		'requests': [],
+		'matchups':[],
+		'admin':userName}
+	try:
+		connection.tournaments.insert_one(tourn)
+	except pymongo.errors.OperationFailure:
+		print 'mongo error'
+		return False
+	return True
+
+def addToTournament(team, tournamentID):
+	
+	try:
+		connection.tournaments.update_one({"_id":ObjectId(tournamentID)}, 
+			{ "$addToSet": { "teams": team } })
+
+	except pymongo.errors.OperationFailure:
+		print 'mongo error'
+		return False
+	return True
+
+def createBracket(tournamentID):
+	try:
+		result=connection.tournaments.find_one({"_id":ObjectId(tournamentID)})
+		teams=ast.literal_eval(dumps(result["teams"]))
+		print teams
+		bracket=[]
+		while len(teams)>1:
+			team1=teams.pop(randint(0, len(teams)-1))
+			team2=teams.pop(randint(0, len(teams)-1))
+			bracket.append([team1, team2])
+		connection.tournaments.update_one({"_id":ObjectId(tournamentID)},
+			{"$set":{"bracket":bracket}})
+	except pymongo.errors.OperationFailure:
+		print 'mongo error'
+		return False
+	return True
+
+
+# removeRequest("tj", "56e6fb45ee999d55b0e79c31")
+print getTournamentID("test")
+createBracket("56e6fb45ee999d55b0e79c31")
+
+
 
 # add_user("buzz", "pass12", "testMail@mail.com")
 # createUser("buzz","Buzz", "Lakata","master","Drexel")
@@ -128,7 +215,7 @@ form the database this is what you need. '''
 # password=raw_input("password: ")
 # email=raw_input("email: ")
 # print add_user(username, password, email)
-print validate_login("buzz", "pass12")
+# print validate_login("buzz", "pass12")
 # print add_user.__doc__
 # print validate_login.__doc__
 # print createUser.__doc__
