@@ -293,12 +293,51 @@ function addToTournement(team, tournamentID){
 	return deferred.promise;
 }
 
+function getAllTourns(){
+	var deferred = Q.defer();
+	MongoClient.connect(connection, function(err, db) {
+  	if(err) {
+   		deferred.reject(err);
+   		return deferred.promise;
+  	}
+
+	var collection = db.collection('tournaments');
+	 collection.find({}).toArray(function(err, item) {
+		if (err){deferred.reject(err)}
+		else{
+			console.log(item)
+			// deferred.resolve(item)
+		}
+	});
+	});
+	return deferred.promise;
+}
+
+function getTournByAdmin(username){
+	var deferred = Q.defer();
+	MongoClient.connect(connection, function(err, db) {
+  	if(err) {
+   		deferred.reject(err);
+   		return deferred.promise;
+  	}
+
+	var collection = db.collection('tournaments');
+	 collection.find({"admin":username}).toArray(function(err, item) {
+		if (err){deferred.reject(err)}
+		else{
+			console.log(item)
+			// deferred.resolve(item)
+		}
+	});
+	});
+	return deferred.promise;
+}
 
 
 function test1(){
   // newPlate("ma", "qwe9876")
   // addMessage("PA","abc1234", "im going to run you off the road if you keep fucking around", "mike", 3)
-  getTournamentID("test").then(function(data){
+  getAllTourns().then(function(data){
       console.log(data);
   }, function(error){
       console.log(error);
@@ -306,7 +345,7 @@ function test1(){
 
 }
 function get(){
-	getUser("buzz").then(function(data){
+	createTournement("test2",8,"buzz").then(function(data){
       console.log(data);
   }, function(error){
       console.log(error);
