@@ -220,6 +220,26 @@ function removeRequest(username, tournamentID){
 	});
 	return deferred.promise;
 }
+function moveName(username, tournamentID){
+	var deferred = Q.defer();
+	MongoClient.connect(connection, function(err, db) {
+  	if(err) {
+   		deferred.reject(err);
+   		return deferred.promise;
+  	}
+
+	var collection = db.collection('tournaments');
+
+	
+	collection.updateOne({"_id":ObjectId(tournamentID)}, { "$pull": { "requests": username }, "$addToSet":{"players":username} }, function(err, item) {
+		if (err){deferred.reject(err)}
+		else{deferred.resolve(item)}
+	});
+	
+	});
+	return deferred.promise;
+}
+
 
 function getTournamentID(tournamentName){
 	var deferred = Q.defer();
@@ -244,11 +264,12 @@ function getTournamentID(tournamentName){
 
 function createTournement(name, teamLimit, userName){
 	var tourn={'name': name, 
-		'teams': ['beta', 'alpha', 'red', 'blue'], 
+		'teams': [], 
 		'matchups': [], 
 		'limit': teamLimit, 
 		'requests': [],
 		'matchups':[],
+		"players":[],
 		'admin':userName}
 
 	var deferred = Q.defer();
@@ -305,8 +326,8 @@ function getAllTourns(){
 	 collection.find({}).toArray(function(err, item) {
 		if (err){deferred.reject(err)}
 		else{
-			console.log(item)
-			// deferred.resolve(item)
+			// console.log(item)
+			deferred.resolve(item)
 		}
 	});
 	});
@@ -325,14 +346,32 @@ function getTournByAdmin(username){
 	 collection.find({"admin":username}).toArray(function(err, item) {
 		if (err){deferred.reject(err)}
 		else{
-			console.log(item)
-			// deferred.resolve(item)
+			// console.log(item)
+			deferred.resolve(item)
 		}
 	});
 	});
 	return deferred.promise;
 }
+function getTournPlayers(tournamentID){
+	var deferred = Q.defer();
+	MongoClient.connect(connection, function(err, db) {
+  	if(err) {
+   		deferred.reject(err);
+   		return deferred.promise;
+  	}
 
+	var collection = db.collection('tournaments');
+	 collection.findOne({"_id":ObjectId(tournamentID)}, function(err, item) {
+		if (err){deferred.reject(err)}
+		else{
+			// console.log(item)
+			deferred.resolve(item["players"])
+		}
+	});
+	});
+	return deferred.promise;
+}
 
 function test1(){
   // newPlate("ma", "qwe9876")
@@ -345,15 +384,17 @@ function test1(){
 
 }
 function get(){
-	createTournement("test2",8,"buzz").then(function(data){
+	
+	getTournPlayers("572b67aece40b2203a586441").then(function(data){
       console.log(data);
   }, function(error){
       console.log(error);
   });
 }
 
-test1()
-// get()
+// test1()
+get()
+// 572b67aece40b2203a586441
 
 
 
